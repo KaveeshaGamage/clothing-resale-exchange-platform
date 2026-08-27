@@ -1,0 +1,106 @@
+/* Admin Navbar */
+
+.admin-navbar {
+
+    width: 100%;
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 35px;
+
+    background: #065F46;
+
+    color: white;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+}
+
+
+/* Logo */
+
+.navbar-logo {
+
+    display: flex;
+
+    align-items: center;
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+    color: white;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* Links */
+
+.navbar-links {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    list-style: none;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+
+.navbar-links li a {
+
+    text-decoration: none;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 500;
+
+    transition: 0.3s;
+
+}
+
+
+
+.navbar-links li a:hover {
+
+    color: #A7F3D0;
+
+}
+
+
+
+/* Logout button effect */
+
+.navbar-links li:last-child a {
+
+    background: #10B981;
+
+    padding: 8px 15px;
+
+    border-radius: 8px;
+
+}
+
+
+
+.navbar-links li:last-child a:hover {
+
+    background: #059669;
+
+    color: white;
+
+}

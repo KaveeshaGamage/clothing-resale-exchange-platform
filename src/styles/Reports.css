@@ -1,0 +1,80 @@
+.reports-page h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.reports-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.reports-controls select {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.export-btn {
+  padding: 12px 25px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.export-btn:hover {
+  background: #1976D2;
+}
+
+.reports-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.reports-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th {
+  background: #f8f9fa;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.reports-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.reports-table tr:hover {
+  background: #f8f9fa;
+}
+
+.reports-table td:first-child {
+  font-weight: 600;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .reports-table {
+    overflow-x: auto;
+  }
+}

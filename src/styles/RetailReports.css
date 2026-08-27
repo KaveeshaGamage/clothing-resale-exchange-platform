@@ -1,0 +1,86 @@
+/* Retail Reports - Green Theme */
+.retail-reports {
+  padding: 0;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  color: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  margin: 0 0 5px;
+  color: white;
+}
+
+.reports-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8f5e9;
+}
+
+.reports-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table thead {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+}
+
+.reports-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 700;
+  color: #1b5e20;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-bottom: 2px solid #a5d6a7;
+}
+
+.reports-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f1f8e9;
+  color: #555;
+}
+
+.reports-table tbody tr:hover {
+  background: linear-gradient(90deg, #f1f8e9, #e8f5e9);
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid #e8f5e9;
+  border-top: 4px solid #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .reports-table {
+    overflow-x: auto;
+  }
+}

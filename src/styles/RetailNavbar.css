@@ -1,0 +1,111 @@
+/* Retail Navbar */
+
+.retail-navbar {
+
+    width: 100%;
+
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+
+    padding: 0 35px;
+
+
+    background: #047857;
+
+
+    color:white;
+
+
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+
+}
+
+
+
+/* Logo */
+
+.navbar-logo {
+
+    display:flex;
+
+    align-items:center;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    color:white;
+
+}
+
+
+
+/* Menu */
+
+.navbar-links {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:22px;
+
+    list-style:none;
+
+    padding:0;
+
+    margin:0;
+
+}
+
+
+
+.navbar-links li a {
+
+    color:white;
+
+    text-decoration:none;
+
+    font-size:15px;
+
+    font-weight:500;
+
+    transition:0.3s;
+
+}
+
+
+
+.navbar-links li a:hover {
+
+    color:#D1FAE5;
+
+}
+
+
+
+/* Logout */
+
+.navbar-links li:last-child a {
+
+    background:#10B981;
+
+    padding:8px 16px;
+
+    border-radius:8px;
+
+}
+
+
+
+.navbar-links li:last-child a:hover {
+
+    background:#059669;
+
+}

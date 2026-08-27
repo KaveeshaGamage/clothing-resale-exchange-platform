@@ -1,0 +1,116 @@
+.manage-users {
+  padding: 0;
+}
+
+.manage-users h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #e94560;
+}
+
+.controls select {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.users-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.users-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  background: #f8f9fa;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.users-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.users-table tr:hover {
+  background: #f8f9fa;
+}
+
+.role-select {
+  padding: 6px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: #e94560;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.delete-btn:hover {
+  background: #ffe0e0;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+  }
+  
+  .users-table {
+    overflow-x: auto;
+  }
+  
+  .users-table table {
+    min-width: 700px;
+  }
+}
