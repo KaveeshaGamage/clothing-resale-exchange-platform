@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/RetailReports.css";
 import RetailNavbar from "../../components/RetailNavbar";
@@ -14,7 +16,7 @@ function RetailReports() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/retail/reports", {
+      const response = await fetch(`${API_BASE_URL}/api/retail/reports`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {

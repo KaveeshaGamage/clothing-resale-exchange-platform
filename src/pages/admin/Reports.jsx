@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/Reports.css";
 import AdminNavbar from "../../components/AdminNavbar";
@@ -12,7 +14,7 @@ function Reports() {
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/admin/reports", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/reports`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {

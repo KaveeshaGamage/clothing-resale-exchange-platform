@@ -1,0 +1,4 @@
+USE rewear;
+
+ALTER TABLE products
+  MODIFY COLUMN image_url LONGTEXT NULL;

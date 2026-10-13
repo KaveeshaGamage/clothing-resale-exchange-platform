@@ -5,12 +5,36 @@ const User = require("../models/User");
 // Register Controller
 exports.register = async (req, res) => {
     try {
-        const { fullName, email, phone, password, role } = req.body;
+        const {
+            fullName,
+            companyName,
+            businessRegistrationId,
+            companyAddress,
+            email,
+            phone,
+            password
+        } = req.body;
+        const role = req.body.role || "customer";
+        const registeredName = role === "retail" ? companyName : fullName;
 
         // Validation
-        if (!fullName || !email || !phone || !password) {
+        if (!registeredName || !email || !phone || !password) {
             return res.status(400).json({ 
                 message: "All fields are required" 
+            });
+        }
+
+        if (role === "retail" && (
+            !businessRegistrationId?.trim() || !companyAddress?.trim()
+        )) {
+            return res.status(400).json({
+                message: "Retail company name, business registration ID, and company address are required"
+            });
+        }
+
+        if (!["customer", "retail"].includes(role)) {
+            return res.status(400).json({
+                message: "Only customer and retail partner registration is allowed"
             });
         }
 
@@ -44,14 +68,6 @@ exports.register = async (req, res) => {
                 });
             }
 
-            // Validate role
-            const validRoles = ['customer', 'retail', 'admin'];
-            if (!validRoles.includes(role)) {
-                return res.status(400).json({ 
-                    message: "Invalid role specified" 
-                });
-            }
-
             try {
                 // Hash password
                 const hashPassword = await bcrypt.hash(password, 10);
@@ -59,7 +75,10 @@ exports.register = async (req, res) => {
                 // Create user
                 User.create(
                     {
-                        fullName,
+                        fullName: registeredName,
+                        companyName: role === "retail" ? companyName : null,
+                        businessRegistrationId: role === "retail" ? businessRegistrationId : null,
+                        companyAddress: role === "retail" ? companyAddress : null,
                         email,
                         phone,
                         password: hashPassword,

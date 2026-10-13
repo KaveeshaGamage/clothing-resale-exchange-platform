@@ -12,11 +12,11 @@
 
     padding:0 40px;
 
-    background:#065F46;
+    background:var(--palette-sage-dark);
 
-    color:white;
+    color:var(--palette-oatmeal-light);
 
-    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    box-shadow:0 4px 10px rgba(var(--palette-ink-rgb), 0.15);
 
 }
 
@@ -27,7 +27,7 @@
     gap: 12px;
     font-size: 28px;
     font-weight: bold;
-    color: white;
+    color: var(--palette-oatmeal-light);
 }
 
 
@@ -40,11 +40,11 @@
 
     object-fit: cover;
 
-    background: white;
+    background: var(--palette-oatmeal-light);
 
     padding: 3px;
 
-    border: 2px solid #A7F3D0;
+    border: 2px solid var(--palette-sage-soft);
 
 }
 
@@ -74,7 +74,7 @@
 
 .navbar-links li a {
 
-    color:white;
+    color:var(--palette-oatmeal-light);
 
     text-decoration:none;
 
@@ -88,7 +88,7 @@
 
 .navbar-links li a:hover {
 
-    color:#A7F3D0;
+    color:var(--palette-sage-soft);
 
 }
 .dropdown {
@@ -102,7 +102,7 @@
 
     border:none;
 
-    color:white;
+    color:var(--palette-oatmeal-light);
 
     font-size:16px;
 
@@ -122,11 +122,11 @@
 
     width:180px;
 
-    background:#065F46;
+    background:var(--palette-sage-dark);
 
     border-radius:10px;
 
-    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    box-shadow:0 5px 15px rgba(var(--palette-ink-rgb), 0.2);
 
     overflow:hidden;
 
@@ -140,10 +140,43 @@
 
     padding:12px 15px;
 
-    color:#1F2937;
+    color:var(--palette-ink);
 
     text-decoration:none;
 
 }
 
+@media (max-width: 900px) {
+    .customer-navbar {
+        height: auto;
+        min-height: 70px;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+        padding: 10px 22px;
+    }
+
+    .customer-navbar .navbar-links {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px 15px;
+    }
+
+    .customer-navbar .navbar-links li a,
+    .customer-navbar .dropdown-btn {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 640px) {
+    .customer-navbar {
+        justify-content: center;
+        padding: 10px 14px;
+    }
+
+    .customer-navbar .navbar-links {
+        width: 100%;
+        justify-content: center;
+        gap: 8px 14px;
+    }
+}
 

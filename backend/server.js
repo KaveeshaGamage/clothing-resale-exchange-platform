@@ -4,9 +4,19 @@ require("dotenv").config();
 
 const app = express();
 
-// CORS Configuration
+const allowedOrigins = (
+    process.env.CORS_ORIGINS ||
+    "http://localhost:5174,http://localhost:5173,http://localhost:3000"
+).split(",").map((origin) => origin.trim()).filter(Boolean);
+
 app.use(cors({
-    origin: ["http://localhost:5174", "http://localhost:5173", "http://localhost:3000"],
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+            return;
+        }
+        callback(null, false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -22,7 +32,15 @@ const orderRoutes = require("./routes/orderRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const retailRoutes = require("./routes/retailRoutes");
 const customerRoutes = require("./routes/customerRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const favoriteRoutes = require("./routes/favoriteRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 
+app.use(  "/api/messages",messageRoutes);
+app.use(  "/api/notifications",  notificationRoutes);
+app.use("/api/favorites", favoriteRoutes);
+app.use("/api/cart", cartRoutes);
 // Use Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
@@ -33,8 +51,8 @@ app.use("/api/customer", customerRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
-    res.json({ 
-        status: "OK", 
+    res.json({
+        status: "OK",
         message: "ReWear API is running",
         timestamp: new Date().toISOString(),
         endpoints: [
@@ -49,10 +67,19 @@ app.get("/api/health", (req, res) => {
             "/api/orders/create",
             "/api/customer/my-listings",
             "/api/customer/my-orders",
+            "/api/customer/dashboard",
+            "/api/customer/retail-partners",             // NEW
+            "/api/customer/complaints/mine",
+            "/api/customer/complaints",
             "/api/admin/dashboard-stats",
             "/api/admin/users",
             "/api/admin/listings",
+            "/api/admin/complaints",
+            "/api/admin/complaints/:id/attachments",
+            "/api/admin/listings/:id/send-for-approval", // NEW
+            "/api/admin/listings/:id/publish",           // NEW
             "/api/retail/pending-verifications",
+            "/api/retail/verify/:id",
             "/api/retail/deliveries"
         ]
     });

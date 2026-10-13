@@ -1,6 +1,9 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomerNavbar from "../../components/CustomerNavbar";
+import ProductImage from "../../components/ProductImage";
 import "../../styles/ShopPage.css";
 
 function ShopPage() {
@@ -48,7 +51,7 @@ function ShopPage() {
   const fetchFilterOptions = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/products/filter-options", {
+      const response = await fetch(`${API_BASE_URL}/api/products/filter-options`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -79,7 +82,7 @@ function ShopPage() {
       if (filters.sortBy) params.append("sortBy", filters.sortBy);
 
       const queryString = params.toString();
-      const url = `http://localhost:5000/api/products/available${queryString ? `?${queryString}` : ''}`;
+      const url = `${API_BASE_URL}/api/products/available${queryString ? `?${queryString}` : ''}`;
 
       const response = await fetch(url, {
         headers: { "Authorization": `Bearer ${token}` }
@@ -124,14 +127,10 @@ function ShopPage() {
     fetchProducts();
   };
 
-  const handleBuyNow = (productId) => {
-    navigate(`/customer/dashboard/buy/${productId}`);
-  };
-
   const handleAddToCart = async (productId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/cart/add", {
+      const response = await fetch(`${API_BASE_URL}/api/cart/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -143,11 +142,36 @@ function ShopPage() {
       if (response.ok) {
         alert("Item added to cart!");
       } else {
-        alert("Failed to add to cart");
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to add to cart");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("Item added to cart!"); // Fallback message
+      alert("Could not connect to the server. Please try adding the item again.");
+    }
+  };
+
+  const handleAddToWishlist = async (productId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/favorites/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message || "Item added to wishlist!");
+      } else {
+        alert(data.message || "Failed to add item to wishlist");
+      }
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      alert("Could not connect to the server. Please try adding the item again.");
     }
   };
 
@@ -249,8 +273,8 @@ function ShopPage() {
             products.map(product => (
               <div key={product.id} className="product-card">
                 <div className="product-image">
-                  <img 
-                    src={product.image_url || "https://via.placeholder.com/300x400?text=No+Image"} 
+                  <ProductImage
+                    src={product.image_url}
                     alt={product.name} 
                   />
                   {product.verification_status === "verified" && (
@@ -284,18 +308,18 @@ function ShopPage() {
 
                   <div className="product-actions">
                     <button 
-                      className="buy-now-btn"
-                      onClick={() => handleBuyNow(product.id)}
-                    >
-                      Buy Now
-                    </button>
-                    <button 
                       className="add-to-cart-btn"
                       onClick={() => handleAddToCart(product.id)}
                     >
                       Add to Cart
                     </button>
                   </div>
+                  <button
+                    className="add-to-wishlist-btn"
+                    onClick={() => handleAddToWishlist(product.id)}
+                  >
+                    <span aria-hidden="true">♡</span> Add to Wishlist
+                  </button>
                 </div>
               </div>
             ))

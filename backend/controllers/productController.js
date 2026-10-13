@@ -10,7 +10,8 @@ exports.getAvailableProducts = (req, res) => {
         priceMin: req.query.priceMin || "",
         priceMax: req.query.priceMax || "",
         search: req.query.search || "",
-        sortBy: req.query.sortBy || "newest"
+        sortBy: req.query.sortBy || "newest",
+        sellerId: req.user.id
     };
 
     Product.getAvailableProducts(filters, (err, products) => {

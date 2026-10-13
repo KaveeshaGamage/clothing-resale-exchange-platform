@@ -1,6 +1,8 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/ManageUsers.css";
-import AdminNavbar from "../../components/AdminNavbar";
+import AdminNavbar from "../../components/AdminNavbar.jsx";
 
 function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -8,7 +10,19 @@ function ManageUsers() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  const [addForm, setAddForm] = useState({
+    role: "customer",
+    fullName: "",
+    companyName: "",
+    businessRegistrationId: "",
+    companyAddress: "",
+    email: "",
+    phone: "",
+    password: ""
+  });
+  const [addError, setAddError] = useState("");
   const [editForm, setEditForm] = useState({
     fullName: "",
     email: "",
@@ -24,7 +38,7 @@ function ManageUsers() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/admin/users", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -81,7 +95,7 @@ function ManageUsers() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/admin/users/${editUser.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${editUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -123,7 +137,7 @@ function ManageUsers() {
     
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -144,7 +158,7 @@ function ManageUsers() {
   const handleUpdateRole = async (userId, newRole) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -159,6 +173,69 @@ function ManageUsers() {
     } catch (error) {
       console.error("Error updating role:", error);
       alert("Failed to update role");
+    }
+  };
+
+  const handleAddChange = (e) => {
+    const { name, value } = e.target;
+    setAddForm((current) => ({ ...current, [name]: value }));
+    setAddError("");
+  };
+
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setAddError("");
+
+    const name = addForm.role === "retail" ? addForm.companyName : addForm.fullName;
+    if (!name.trim() || !addForm.email.trim() || !addForm.phone.trim() || !addForm.password) {
+      setAddError("Complete all required fields.");
+      return;
+    }
+    if (addForm.password.length < 6) {
+      setAddError("Password must be at least 6 characters.");
+      return;
+    }
+    if (addForm.role === "retail" &&
+        (!addForm.businessRegistrationId.trim() || !addForm.companyAddress.trim())) {
+      setAddError("Enter the retail business registration ID and company address.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(addForm)
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setAddError(data.message || "Failed to create user.");
+        return;
+      }
+
+      setUsers((current) => [data.user, ...current]);
+      setAddForm({
+        role: "customer",
+        fullName: "",
+        companyName: "",
+        businessRegistrationId: "",
+        companyAddress: "",
+        email: "",
+        phone: "",
+        password: ""
+      });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setAddError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -186,8 +263,20 @@ function ManageUsers() {
       <AdminNavbar />
       <div className="manage-users">
         <div className="page-header">
-          <h1>Manage Users</h1>
-          <p className="user-count">Total Users: {users.length}</p>
+          <div>
+            <h1>Manage Users</h1>
+            <p className="user-count">Total Users: {users.length}</p>
+          </div>
+          <button
+            type="button"
+            className="add-user-btn"
+            onClick={() => {
+              setAddError("");
+              setShowAddModal(true);
+            }}
+          >
+            + Add User
+          </button>
         </div>
         
         {/* Search and Filter Controls */}
@@ -267,6 +356,90 @@ function ManageUsers() {
             </tbody>
           </table>
         </div>
+
+        {showAddModal && (
+          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+            <div className="modal add-user-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Add User</h2>
+                <button
+                  type="button"
+                  className="modal-close-btn"
+                  aria-label="Close add user form"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {addError && <p className="add-user-error" role="alert">{addError}</p>}
+              <form onSubmit={handleAddUser} className="edit-form">
+                <div className="form-group">
+                  <label htmlFor="new-user-role">Role *</label>
+                  <select id="new-user-role" name="role" value={addForm.role} onChange={handleAddChange}>
+                    <option value="customer">Customer</option>
+                    <option value="retail">Retail Partner</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+
+                {addForm.role === "retail" ? (
+                  <>
+                    <div className="form-group">
+                      <label htmlFor="new-user-company">Company Name *</label>
+                      <input id="new-user-company" name="companyName" value={addForm.companyName}
+                        onChange={handleAddChange} required />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="new-user-registration">Business Registration ID *</label>
+                      <input id="new-user-registration" name="businessRegistrationId"
+                        value={addForm.businessRegistrationId} onChange={handleAddChange} required />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="new-user-address">Company Address *</label>
+                      <textarea id="new-user-address" name="companyAddress" rows="3"
+                        value={addForm.companyAddress} onChange={handleAddChange} required />
+                    </div>
+                  </>
+                ) : (
+                  <div className="form-group">
+                    <label htmlFor="new-user-name">Full Name *</label>
+                    <input id="new-user-name" name="fullName" value={addForm.fullName}
+                      onChange={handleAddChange} required />
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label htmlFor="new-user-email">
+                    {addForm.role === "retail" ? "Company Official Email *" : "Email *"}
+                  </label>
+                  <input id="new-user-email" type="email" name="email" value={addForm.email}
+                    onChange={handleAddChange} required />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="new-user-phone">Telephone Number *</label>
+                  <input id="new-user-phone" type="tel" name="phone" value={addForm.phone}
+                    onChange={handleAddChange} required />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="new-user-password">Temporary Password *</label>
+                  <input id="new-user-password" type="password" name="password"
+                    value={addForm.password} onChange={handleAddChange}
+                    minLength="6" autoComplete="new-password" required />
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" className="cancel-btn" onClick={() => setShowAddModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="save-btn" disabled={saving}>
+                    {saving ? "Creating..." : "Create User"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Edit User Modal */}
         {showEditModal && editUser && (

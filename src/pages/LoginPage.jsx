@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import "../styles/LoginPage.css";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -11,7 +12,7 @@ function Login() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(location.state?.message || "");
 
   const handleChange = (e) => {
     setFormData({
@@ -111,6 +112,9 @@ function Login() {
           <p>
             Don't have an account?
             <Link to="/register"> Register</Link>
+          </p>
+          <p>
+            <Link to="/"> Back to home</Link>
           </p>
         </div>
       </div>

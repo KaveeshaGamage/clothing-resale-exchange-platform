@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720" fill="none">
+  <defs>
+    <linearGradient id="background" x1="30" y1="10" x2="580" y2="710" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F0EADF"/>
+      <stop offset="1" stop-color="#DCE5D9"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#background)" d="M0 0h600v720H0z"/>
+  <circle cx="300" cy="323" r="174" fill="#F8F5EE" fill-opacity=".7"/>
+  <path d="M300 172c-34 0-55 23-55 48 0 12 8 20 18 20 9 0 16-7 16-16 0-7-5-13-12-14 3-11 15-20 33-20 21 0 36 13 36 30 0 21-23 31-37 44-12 11-18 25-18 48v13h37v-10c0-18 7-27 22-40 19-17 38-32 38-58 0-36-31-65-78-65Z" fill="#527366"/>
+  <path d="m300 337-188 91 188 76 188-76-188-91Z" fill="#527366"/>
+  <path d="m196 414 104-50 104 50-104 51-104-51Z" fill="#A7B8A8"/>
+  <path d="m211 469 89 47 89-47v20c0 37-40 66-89 66s-89-29-89-66v-20Z" fill="#527366"/>
+  <path d="M191 577h218" stroke="#9DAF9E" stroke-linecap="round" stroke-width="8"/>
+  <text x="300" y="632" fill="#667C6B" font-family="Arial,sans-serif" font-size="20" letter-spacing="5" text-anchor="middle">REWEAR FIND</text>
+</svg>

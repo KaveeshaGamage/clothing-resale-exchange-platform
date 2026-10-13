@@ -1,6 +1,6 @@
 .complaints-page h1 {
   font-size: 2rem;
-  color: #333;
+  color: var(--palette-ink);
   margin-bottom: 25px;
 }
 
@@ -11,11 +11,11 @@
 }
 
 .complaint-card {
-  background: white;
+  background: var(--palette-oatmeal-light);
   border-radius: 12px;
   padding: 25px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  border-left: 4px solid #e94560;
+  box-shadow: 0 2px 10px rgba(var(--palette-ink-rgb), 0.08);
+  border-left: 4px solid var(--palette-terracotta);
 }
 
 .complaint-header {
@@ -28,7 +28,7 @@
 
 .complaint-header h3 {
   font-size: 1.2rem;
-  color: #333;
+  color: var(--palette-ink);
   flex: 1;
 }
 
@@ -40,23 +40,23 @@
 }
 
 .priority.urgent {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--palette-sage-soft);
+  color: var(--palette-terracotta-dark);
 }
 
 .priority.high {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--palette-sage-soft);
+  color: var(--palette-terracotta);
 }
 
 .priority.medium {
-  background: #cce5ff;
-  color: #004085;
+  background: var(--palette-sage-soft);
+  color: var(--palette-ink);
 }
 
 .priority.low {
-  background: #d4edda;
-  color: #155724;
+  background: var(--palette-oatmeal-dark);
+  color: var(--palette-sage-dark);
 }
 
 .status {
@@ -67,27 +67,27 @@
 }
 
 .status-pending {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--palette-sage-soft);
+  color: var(--palette-terracotta);
 }
 
 .status-investigating {
-  background: #cce5ff;
-  color: #004085;
+  background: var(--palette-sage-soft);
+  color: var(--palette-ink);
 }
 
 .status-resolved {
-  background: #d4edda;
-  color: #155724;
+  background: var(--palette-oatmeal-dark);
+  color: var(--palette-sage-dark);
 }
 
 .status-closed {
-  background: #f0f0f0;
-  color: #666;
+  background: var(--palette-oatmeal-dark);
+  color: var(--palette-muted);
 }
 
 .description {
-  color: #555;
+  color: var(--palette-muted);
   line-height: 1.6;
   margin-bottom: 15px;
 }
@@ -96,21 +96,74 @@
   display: flex;
   gap: 20px;
   font-size: 0.85rem;
-  color: #999;
+  color: var(--palette-muted);
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
 
+.complaint-evidence {
+  margin: 0 0 16px;
+}
+
+.complaint-evidence-toggle {
+  padding: 8px 13px;
+  border: 1px solid rgba(var(--palette-sage-rgb), 0.3);
+  border-radius: 7px;
+  color: var(--palette-sage-dark);
+  background: var(--palette-sage-soft);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.complaint-evidence-toggle:hover {
+  color: var(--palette-oatmeal-light);
+  background: var(--palette-sage);
+}
+
+.complaint-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 190px));
+  gap: 12px;
+  margin-top: 13px;
+}
+
+.complaint-evidence-grid a {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid var(--palette-oatmeal-dark);
+  border-radius: 9px;
+  color: var(--palette-ink);
+  background: var(--palette-oatmeal-light);
+  text-decoration: none;
+}
+
+.complaint-evidence-grid img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.complaint-evidence-grid span {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .admin-response {
-  background: #f0f8ff;
+  background: var(--palette-oatmeal-dark);
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
-  border-left: 3px solid #2196F3;
+  border-left: 3px solid var(--palette-sage-dark);
 }
 
 .admin-response strong {
-  color: #333;
+  color: var(--palette-ink);
 }
 
 .response-form {
@@ -120,7 +173,7 @@
 .response-form textarea {
   width: 100%;
   padding: 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--palette-oatmeal-dark);
   border-radius: 8px;
   font-size: 0.95rem;
   resize: vertical;
@@ -130,13 +183,13 @@
 
 .response-form textarea:focus {
   outline: none;
-  border-color: #2196F3;
+  border-color: var(--palette-sage-dark);
 }
 
 .response-form button {
   padding: 10px 25px;
-  background: #4CAF50;
-  color: white;
+  background: var(--palette-sage);
+  color: var(--palette-oatmeal-light);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -145,7 +198,7 @@
 }
 
 .response-form button:hover {
-  background: #45a049;
+  background: var(--palette-sage);
 }
 
 @media (max-width: 768px) {

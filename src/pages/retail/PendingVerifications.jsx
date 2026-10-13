@@ -1,6 +1,9 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/PendingVerifications.css";
-import RetailNavbar from "../../components/RetailNavbar";
+import RetailNavbar from "../../components/RetailNavbar.jsx";
+import ProductImage from "../../components/ProductImage.jsx";
 function PendingVerifications() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +19,7 @@ function PendingVerifications() {
   const fetchPendingListings = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/retail/pending-verifications", {
+      const response = await fetch(`${API_BASE_URL}/api/retail/pending-verifications`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -33,7 +36,7 @@ function PendingVerifications() {
   const handleVerify = async (productId, status) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/retail/verify/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/retail/verify/${productId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -85,7 +88,7 @@ function PendingVerifications() {
           {listings.map(listing => (
             <div key={listing.id} className="verification-card">
               <div className="card-image">
-                <img src={listing.image_url || "https://via.placeholder.com/200"} alt={listing.name} />
+                <ProductImage src={listing.image_url} alt={listing.name} />
               </div>
               <div className="card-content">
                 <div className="card-header">

@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/SystemSettings.css";
 import AdminNavbar from "../../components/AdminNavbar"; 
@@ -5,6 +7,8 @@ function SystemSettings() {
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -13,28 +17,31 @@ function SystemSettings() {
   const fetchSettings = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/admin/settings", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      if (response.ok) {
-        const data = await response.json();
-        setSettings(data.settings || []);
-      }
+      if (!response.ok) throw new Error("Could not load settings. Please try again.");
+      const data = await response.json();
+      setSettings(data.settings || []);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error loading settings:", error);
+      setError(error.message || "Could not load settings. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (key, value) => {
-    setSettings(settings.map(s => 
+    setSuccess("");
+    setSettings((current) => current.map(s => 
       s.setting_key === key ? {...s, setting_value: value} : s
     ));
   };
 
   const handleSave = async () => {
     setSaving(true);
+    setError("");
+    setSuccess("");
     try {
       const token = localStorage.getItem("token");
       const updateData = settings.map(s => ({
@@ -42,7 +49,7 @@ function SystemSettings() {
         value: s.setting_value
       }));
       
-      await fetch("http://localhost:5000/api/admin/settings", {
+      const result = await fetch(`${API_BASE_URL}/api/admin/settings`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -50,9 +57,14 @@ function SystemSettings() {
         },
         body: JSON.stringify({ settings: updateData })
       });
-      alert("Settings saved successfully!");
+      if (!result.ok) {
+        const data = await result.json().catch(() => ({}));
+        throw new Error(data.message || "Could not save settings.");
+      }
+      setSuccess("Settings saved successfully.");
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error saving settings:", error);
+      setError(error.message || "Could not save settings. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -65,6 +77,8 @@ function SystemSettings() {
       <AdminNavbar />
     <div className="settings-page">
       <h1>System Settings</h1>
+      {error && <p role="alert">{error}</p>}
+      {success && <p role="status">{success}</p>}
       
       <div className="settings-form">
         {settings.map(setting => (

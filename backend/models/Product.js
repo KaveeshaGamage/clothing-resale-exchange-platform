@@ -68,9 +68,16 @@ const Product = {
             JOIN users u ON p.seller_id = u.id
             WHERE p.status = 'available' 
             AND p.verification_status = 'verified'
+            AND p.is_published = TRUE
+            AND p.quantity > 0
         `;
         
         const params = [];
+
+        if (filters.sellerId) {
+            sql += " AND p.seller_id <> ?";
+            params.push(filters.sellerId);
+        }
 
         if (filters.category && filters.category !== "All" && filters.category !== "") {
             sql += " AND p.category = ?";
@@ -210,6 +217,7 @@ const Product = {
             SELECT DISTINCT category 
             FROM products 
             WHERE status = 'available' AND verification_status = 'verified'
+              AND is_published = TRUE AND quantity > 0
             ORDER BY category
         `;
         
@@ -229,6 +237,7 @@ const Product = {
             SELECT DISTINCT brand 
             FROM products 
             WHERE status = 'available' AND verification_status = 'verified'
+              AND is_published = TRUE AND quantity > 0
             ORDER BY brand
         `;
         

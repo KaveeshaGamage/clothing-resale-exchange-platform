@@ -1,7 +1,9 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/UpdateDelivery.css";
-import RetailNavbar from "../../components/RetailNavbar";
+import RetailNavbar from "../../components/RetailNavbar.jsx";
 function UpdateDelivery() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,34 +43,39 @@ function UpdateDelivery() {
   ];
 
   useEffect(() => {
+    if (!id || !/^\d+$/.test(id)) {
+      setError("A valid delivery ID is required.");
+      setLoading(false);
+      return;
+    }
     fetchDeliveryDetails();
   }, [id]);
 
   const fetchDeliveryDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/retail/delivery/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/retail/delivery/${id}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setDelivery(data.delivery);
-        setFormData({
-          delivery_status: data.delivery.delivery_status || "pending",
-          tracking_number: data.delivery.tracking_number || "",
-          courier_name: data.delivery.courier_name || "",
-          estimated_delivery_date: data.delivery.estimated_delivery_date?.split('T')[0] || "",
-          delivery_notes: data.delivery.delivery_notes || "",
-          pickup_address: data.delivery.pickup_address || "",
-          delivery_address: data.delivery.delivery_address || ""
-        });
-      } else {
-        setError("Failed to fetch delivery details");
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to fetch delivery details");
       }
+      const data = await response.json().catch(() => ({}));
+      setDelivery(data.delivery);
+      setFormData({
+        delivery_status: data.delivery.delivery_status || "pending",
+        tracking_number: data.delivery.tracking_number || "",
+        courier_name: data.delivery.courier_name || "",
+        estimated_delivery_date: data.delivery.estimated_delivery_date?.split('T')[0] || "",
+        delivery_notes: data.delivery.delivery_notes || "",
+        pickup_address: data.delivery.pickup_address || "",
+        delivery_address: data.delivery.delivery_address || ""
+      });
     } catch (error) {
-      console.error("Error:", error);
-      setError("Network error. Please check your connection.");
+      console.error("Error loading delivery:", error);
+      setError(error.message || "Network error. Please check your connection.");
     } finally {
       setLoading(false);
     }
@@ -84,13 +91,17 @@ function UpdateDelivery() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (delivery?.order_status === "cancelled" || delivery?.delivery_status === "cancelled") {
+      setError("This order was cancelled. Its delivery status can no longer be changed.");
+      return;
+    }
     setSaving(true);
     setError("");
     setSuccess("");
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/retail/delivery/${id}/update`, {
+      const response = await fetch(`${API_BASE_URL}/api/retail/delivery/${id}/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -107,6 +118,10 @@ function UpdateDelivery() {
           navigate("/retail/delivery-management");
         }, 1500);
       } else {
+        console.error("Delivery update request failed:", {
+          status: response.status,
+          message: data.message
+        });
         setError(data.message || "Failed to update delivery");
       }
     } catch (error) {
@@ -143,7 +158,7 @@ function UpdateDelivery() {
       <div className="error-state">
         <span>❌</span>
         <h3>Delivery Not Found</h3>
-        <p>The delivery you're looking for doesn't exist.</p>
+        <p>{error || "The delivery you're looking for doesn't exist."}</p>
         <button onClick={() => navigate("/retail/delivery-management")}>
           Back to Deliveries
         </button>
@@ -180,6 +195,12 @@ function UpdateDelivery() {
       )}
 
       <div className="delivery-content">
+        {delivery.order_status === "cancelled" || delivery.delivery_status === "cancelled" ? (
+          <div className="error-message" role="status">
+            This order was cancelled by the customer. Delivery updates are disabled.
+          </div>
+        ) : (
+        <>
         {/* Delivery Progress */}
         <div className="delivery-progress">
           <h3>Delivery Progress</h3>
@@ -358,6 +379,8 @@ function UpdateDelivery() {
             </div>
           </form>
         </div>
+        </>
+        )}
       </div>
     </div>
     </>

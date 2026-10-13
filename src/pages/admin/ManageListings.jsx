@@ -1,6 +1,9 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/ManageListings.css";
-import AdminNavbar from "../../components/AdminNavbar";
+import AdminNavbar from "../../components/AdminNavbar.jsx";
+import ProductImage from "../../components/ProductImage.jsx";
 
 function ManageListings() {
   const [listings, setListings] = useState([]);
@@ -21,7 +24,7 @@ function ManageListings() {
   const fetchListings = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/admin/listings", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/listings`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -38,12 +41,11 @@ function ManageListings() {
   const fetchRetailPartners = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/admin/users?role=retail", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users?role=retail`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
         const data = await response.json();
-        // Filter only retail partners
         const retailUsers = data.users?.filter(u => u.role === 'retail') || [];
         setRetailPartners(retailUsers);
       }
@@ -56,26 +58,23 @@ function ManageListings() {
   const handleVerify = async (productId, status) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/products/${productId}/verify`, {
+      const response = await fetch(`${API_BASE_URL}/api/products/${productId}/verify`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status })
       });
       if (response.ok) {
-        setListings(listings.map(l => 
-          l.id === productId ? {...l, verification_status: status} : l
+        setListings(listings.map(l =>
+          l.id === productId ? { ...l, verification_status: status } : l
         ));
         alert(`Listing ${status} successfully`);
       }
-    } catch (error) {
-      console.error("Error updating listing:", error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // Open assign to retail partner modal
+  // Open "Send for Approval" modal
   const handleOpenAssignModal = (listing) => {
     setSelectedListing(listing);
     setSelectedRetailId("");
@@ -83,8 +82,8 @@ function ManageListings() {
     setShowAssignModal(true);
   };
 
-  // Send to retail partner for verification
-  const handleAssignToRetail = async () => {
+  // Send listing to retail partner for verification
+  const handleSendForApproval = async () => {
     if (!selectedRetailId) {
       alert("Please select a retail partner");
       return;
@@ -92,68 +91,106 @@ function ManageListings() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/admin/listings/${selectedListing.id}/assign`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          retail_id: selectedRetailId,
-          notes: assignNote
-        })
-      });
-
-      if (response.ok) {
-        // Add verification note
-        await fetch(`http://localhost:5000/api/retail/verify/${selectedListing.id}`, {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/listings/${selectedListing.id}/send-for-approval`,
+        {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({
-            status: "pending",
-            notes: `Assigned to retail partner. Admin note: ${assignNote}`
+            retail_id: selectedRetailId,
+            notes: assignNote
           })
-        });
+        }
+      );
 
-        // Create notification for retail partner
-        await fetch("http://localhost:5000/api/notifications/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            user_id: selectedRetailId,
-            message: `New listing assigned for verification: ${selectedListing.name}`,
-            type: "verification"
-          })
-        });
-
+      if (response.ok) {
         setShowAssignModal(false);
         setSelectedListing(null);
-        alert("Listing assigned to retail partner successfully!");
-        fetchListings(); // Refresh list
+        setSelectedRetailId("");
+        setAssignNote("");
+        alert("Listing sent to retail partner for verification!");
+        fetchListings();
       } else {
         const data = await response.json();
-        alert(data.message || "Failed to assign listing");
+        alert(data.message || "Failed to send for approval");
       }
     } catch (error) {
-      console.error("Error assigning listing:", error);
+      console.error("Error sending for approval:", error);
+      alert("Network error. Please try again.");
+    }
+  };
+
+  // Publish verified listing to customer shop
+  const handlePublish = async (productId) => {
+    if (!window.confirm("Publish this item to the customer shop?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/listings/${productId}/publish`,
+        {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${token}` }
+        }
+      );
+
+      if (response.ok) {
+        setListings(listings.map(l =>
+          l.id === productId ? { ...l, is_published: true } : l
+        ));
+        alert("Listing published to shop!");
+      } else {
+        const data = await response.json();
+        alert(data.message || "Failed to publish listing");
+      }
+    } catch (error) {
+      console.error("Error publishing listing:", error);
+      alert("Network error. Please try again.");
+    }
+  };
+
+  // Unpublish (hide from shop)
+  const handleUnpublish = async (productId) => {
+    if (!window.confirm("Remove this item from the customer shop?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/listings/${productId}/unpublish`,
+        {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${token}` }
+        }
+      );
+
+      if (response.ok) {
+        setListings(listings.map(l =>
+          l.id === productId ? { ...l, is_published: false } : l
+        ));
+        alert("Listing removed from shop!");
+      } else {
+        const data = await response.json();
+        alert(data.message || "Failed to unpublish listing");
+      }
+    } catch (error) {
+      console.error("Error unpublishing listing:", error);
       alert("Network error. Please try again.");
     }
   };
 
   const handleDelete = async (productId) => {
     if (!window.confirm("Delete this listing? This action cannot be undone.")) return;
+
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/admin/listings/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/listings/${productId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
+
       if (response.ok) {
         setListings(listings.filter(l => l.id !== productId));
         alert("Listing deleted successfully");
@@ -164,9 +201,10 @@ function ManageListings() {
   };
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.name?.toLowerCase().includes(search.toLowerCase()) ||
-                         listing.brand?.toLowerCase().includes(search.toLowerCase()) ||
-                         listing.seller_name?.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch =
+      listing.name?.toLowerCase().includes(search.toLowerCase()) ||
+      listing.brand?.toLowerCase().includes(search.toLowerCase()) ||
+      listing.seller_name?.toLowerCase().includes(search.toLowerCase());
     const matchesFilter = filter === "all" || listing.verification_status === filter;
     return matchesSearch && matchesFilter;
   });
@@ -200,7 +238,9 @@ function ManageListings() {
           boxShadow: '0 4px 15px rgba(46,125,50,0.3)'
         }}>
           <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Manage Listings</h1>
-          <p style={{ margin: '5px 0 0', opacity: 0.9 }}>Verify, reject, or assign listings to retail partners</p>
+          <p style={{ margin: '5px 0 0', opacity: 0.9 }}>
+            Verify, reject, assign to retail partners, or publish items to the shop
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -245,8 +285,8 @@ function ManageListings() {
               fontSize: '1rem'
             }}
           />
-          <select 
-            value={filter} 
+          <select
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
             style={{
               padding: '12px 15px',
@@ -283,8 +323,8 @@ function ManageListings() {
                 border: '1px solid #e8f5e9',
                 transition: 'all 0.3s'
               }}>
-                <img 
-                  src={listing.image_url || "https://via.placeholder.com/300x200?text=No+Image"} 
+                <ProductImage
+                  src={listing.image_url}
                   alt={listing.name}
                   style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                 />
@@ -296,15 +336,15 @@ function ManageListings() {
                       borderRadius: '20px',
                       fontSize: '0.8rem',
                       fontWeight: 600,
-                      background: listing.verification_status === 'verified' ? '#c8e6c9' : 
+                      background: listing.verification_status === 'verified' ? '#c8e6c9' :
                                   listing.verification_status === 'pending' ? '#fff3cd' : '#ffcdd2',
-                      color: listing.verification_status === 'verified' ? '#1b5e20' : 
+                      color: listing.verification_status === 'verified' ? '#1b5e20' :
                              listing.verification_status === 'pending' ? '#f57f17' : '#b71c1c'
                     }}>
                       {listing.verification_status}
                     </span>
                   </div>
-                  
+
                   <p style={{ color: '#666', margin: '5px 0' }}>{listing.brand} • {listing.category}</p>
                   <p style={{ color: '#666', margin: '5px 0', fontSize: '0.9rem' }}>
                     Size: {listing.size} | Condition: {listing.condition_status}
@@ -316,12 +356,45 @@ function ManageListings() {
                     Seller: {listing.seller_name}
                   </p>
 
+                  {/* Published badge */}
+                  {listing.is_published && (
+                    <p style={{
+                      margin: '8px 0 0',
+                      padding: '6px 12px',
+                      background: '#e8f5e9',
+                      color: '#2e7d32',
+                      borderRadius: '6px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      display: 'inline-block'
+                    }}>
+                      🛒 Live in Shop
+                    </p>
+                  )}
+
                   {/* Action Buttons */}
                   <div className="actions" style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
                     {listing.verification_status === 'pending' && (
                       <>
-                        <button 
-                          onClick={() => handleVerify(listing.id, 'verified')} 
+                        <button
+                          onClick={() => handleOpenAssignModal(listing)}
+                          className="assign-btn"
+                          style={{
+                            padding: '10px 18px',
+                            background: 'linear-gradient(135deg, #2196F3, #1976D2)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            flex: 1,
+                            minWidth: '100%'
+                          }}
+                        >
+                          📤 Send for Approval to Retail Partner
+                        </button>
+                        <button
+                          onClick={() => handleVerify(listing.id, 'verified')}
                           className="verify-btn"
                           style={{
                             padding: '10px 18px',
@@ -334,10 +407,10 @@ function ManageListings() {
                             flex: 1
                           }}
                         >
-                          ✓ Verify
+                          ✓ Verify Directly
                         </button>
-                        <button 
-                          onClick={() => handleVerify(listing.id, 'rejected')} 
+                        <button
+                          onClick={() => handleVerify(listing.id, 'rejected')}
                           className="reject-btn"
                           style={{
                             padding: '10px 18px',
@@ -352,27 +425,51 @@ function ManageListings() {
                         >
                           ✕ Reject
                         </button>
-                        <button 
-                          onClick={() => handleOpenAssignModal(listing)} 
-                          className="assign-btn"
-                          style={{
-                            padding: '10px 18px',
-                            background: 'linear-gradient(135deg, #2196F3, #1976D2)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontWeight: 600,
-                            flex: 1,
-                            minWidth: '100%'
-                          }}
-                        >
-                          📤 Send to Retail Partner
-                        </button>
                       </>
                     )}
-                    <button 
-                      onClick={() => handleDelete(listing.id)} 
+
+                    {listing.verification_status === 'verified' && !listing.is_published && (
+                      <button
+                        onClick={() => handlePublish(listing.id)}
+                        className="publish-btn"
+                        style={{
+                          padding: '10px 18px',
+                          background: 'linear-gradient(135deg, #8e24aa, #6a1b9a)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          flex: 1,
+                          minWidth: '100%'
+                        }}
+                      >
+                        🛒 Publish to Shop (Show to Customers)
+                      </button>
+                    )}
+
+                    {listing.verification_status === 'verified' && listing.is_published && (
+                      <button
+                        onClick={() => handleUnpublish(listing.id)}
+                        className="unpublish-btn"
+                        style={{
+                          padding: '10px 18px',
+                          background: 'linear-gradient(135deg, #757575, #424242)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          flex: 1,
+                          minWidth: '100%'
+                        }}
+                      >
+                        🚫 Remove from Shop
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleDelete(listing.id)}
                       className="delete-btn"
                       style={{
                         padding: '10px 18px',
@@ -394,7 +491,7 @@ function ManageListings() {
           </div>
         )}
 
-        {/* Assign to Retail Partner Modal */}
+        {/* Send for Approval Modal */}
         {showAssignModal && selectedListing && (
           <div className="modal-overlay" style={{
             position: 'fixed',
@@ -425,8 +522,8 @@ function ManageListings() {
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <h2 style={{ margin: 0, fontSize: '1.3rem' }}>📤 Send to Retail Partner</h2>
-                <button 
+                <h2 style={{ margin: 0, fontSize: '1.3rem' }}>📤 Send to Retail Partner for Approval</h2>
+                <button
                   onClick={() => setShowAssignModal(false)}
                   style={{
                     background: 'rgba(255,255,255,0.2)',
@@ -442,7 +539,7 @@ function ManageListings() {
                   ✕
                 </button>
               </div>
-              
+
               <div style={{ padding: '25px' }}>
                 <p style={{ marginBottom: '15px', color: '#555' }}>
                   <strong>Listing:</strong> {selectedListing.name}
@@ -470,10 +567,15 @@ function ManageListings() {
                     <option value="">-- Select Retail Partner --</option>
                     {retailPartners.map(partner => (
                       <option key={partner.id} value={partner.id}>
-                        {partner.fullName} ({partner.email})
+                        {partner.fullName || partner.full_name} ({partner.email})
                       </option>
                     ))}
                   </select>
+                  {retailPartners.length === 0 && (
+                    <small style={{ color: '#c62828', display: 'block', marginTop: '6px' }}>
+                      No retail partners registered yet.
+                    </small>
+                  )}
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '20px' }}>
@@ -520,7 +622,7 @@ function ManageListings() {
                   Cancel
                 </button>
                 <button
-                  onClick={handleAssignToRetail}
+                  onClick={handleSendForApproval}
                   style={{
                     padding: '10px 25px',
                     background: 'linear-gradient(135deg, #4caf50, #388e3c)',
@@ -532,7 +634,7 @@ function ManageListings() {
                     fontWeight: 600
                   }}
                 >
-                  📤 Assign to Retail Partner
+                  📤 Send for Approval
                 </button>
               </div>
             </div>

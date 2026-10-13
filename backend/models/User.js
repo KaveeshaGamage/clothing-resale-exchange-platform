@@ -5,8 +5,9 @@ const User = {
     create: (userData, callback) => {
         const sql = `
             INSERT INTO users 
-            (fullName, email, phone, password, role) 
-            VALUES (?, ?, ?, ?, ?)
+            (fullName, email, phone, password, role, company_name,
+             business_registration_id, company_address)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
         db.query(
@@ -16,7 +17,10 @@ const User = {
                 userData.email,
                 userData.phone,
                 userData.password,
-                userData.role || 'customer'
+                userData.role || 'customer',
+                userData.companyName || null,
+                userData.businessRegistrationId || null,
+                userData.companyAddress || null
             ],
             (err, result) => {
                 if (err) {

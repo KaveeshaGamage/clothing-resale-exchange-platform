@@ -1,49 +1,159 @@
 const db = require("../config/db");
+const bcrypt = require("bcrypt");
 
 // Get dashboard statistics
-exports.getDashboardStats = (req, res) => {
-    const stats = {};
-    
-    // Total users
-    db.query("SELECT COUNT(*) as count FROM users", (err, result) => {
-        if (err) return res.status(500).json({ message: "Error" });
-        stats.totalUsers = result[0].count;
-        
-        // Total listings
-        db.query("SELECT COUNT(*) as count FROM products WHERE status != 'removed'", (err, result) => {
-            stats.totalListings = result[0].count;
-            
-            // Total orders
-            db.query("SELECT COUNT(*) as count FROM orders", (err, result) => {
-                stats.totalOrders = result[0].count;
-                
-                // Total revenue
-                db.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE order_status != 'cancelled'", (err, result) => {
-                    stats.totalRevenue = result[0].total;
-                    
-                    // Pending verifications
-                    db.query("SELECT COUNT(*) as count FROM products WHERE verification_status = 'pending'", (err, result) => {
-                        stats.pendingVerifications = result[0].count;
-                        
-                        // Open complaints
-                        db.query("SELECT COUNT(*) as count FROM complaints WHERE status IN ('pending', 'investigating')", (err, result) => {
-                            stats.openComplaints = result[0].count;
-                            
-                            res.json({ success: true, stats });
-                        });
-                    });
-                });
-            });
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const [[statsRows], [recentUsers], [recentListings], [dailySales]] = await Promise.all([
+            db.promise().query(`
+                SELECT
+                    (SELECT COUNT(*) FROM users) AS totalUsers,
+                    (SELECT COUNT(*) FROM products WHERE status <> 'removed') AS totalListings,
+                    (SELECT COUNT(*) FROM orders) AS totalOrders,
+                    (SELECT COALESCE(SUM(total_amount), 0) FROM orders
+                        WHERE order_status <> 'cancelled') AS totalRevenue,
+                    (SELECT COUNT(*) FROM products
+                        WHERE verification_status = 'pending') AS pendingVerifications,
+                    (SELECT COUNT(*) FROM complaints
+                        WHERE status IN ('pending', 'investigating')) AS openComplaints
+            `),
+            db.promise().query(
+                `SELECT id, fullName, email, role, created_at
+                 FROM users
+                 ORDER BY created_at DESC
+                 LIMIT 5`
+            ),
+            db.promise().query(
+                `SELECT p.id, p.name, p.brand, p.category, p.price, p.created_at,
+                        p.verification_status, p.is_published, u.fullName AS seller_name
+                 FROM products p
+                 JOIN users u ON u.id = p.seller_id
+                 ORDER BY p.created_at DESC
+                 LIMIT 6`
+            ),
+            db.promise().query(
+                `SELECT DATE(order_date) AS date, COUNT(*) AS orders,
+                        COALESCE(SUM(total_amount), 0) AS revenue
+                 FROM orders
+                 WHERE order_status <> 'cancelled'
+                   AND order_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                 GROUP BY DATE(order_date)
+                 ORDER BY DATE(order_date) ASC`
+            ),
+        ]);
+
+        res.json({
+            success: true,
+            stats: statsRows[0],
+            recentUsers,
+            recentListings,
+            dailySales,
         });
-    });
+    } catch (err) {
+        console.error("Error fetching admin dashboard:", err);
+        res.status(500).json({ message: "Error fetching dashboard data" });
+    }
 };
 
 // Get all users
 exports.getUsers = (req, res) => {
-    db.query("SELECT id, fullName, email, phone, role, created_at FROM users ORDER BY created_at DESC", (err, users) => {
+    const sql = `
+        SELECT u.id, u.fullName, u.email, u.phone, u.role, u.created_at,
+               (SELECT COUNT(*)
+                FROM products p
+                WHERE p.retail_partner_id = u.id
+                  AND p.verification_status = 'verified') AS verifiedListings
+        FROM users u
+        ORDER BY u.created_at DESC
+    `;
+    db.query(sql, (err, users) => {
         if (err) return res.status(500).json({ message: "Error fetching users" });
         res.json({ success: true, users });
     });
+};
+
+exports.createUser = async (req, res) => {
+    const {
+        fullName,
+        email,
+        phone,
+        password,
+        role,
+        companyName,
+        businessRegistrationId,
+        companyAddress
+    } = req.body;
+    const userRole = role;
+    const userName = userRole === "retail" ? companyName : fullName;
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const normalizedPhone = typeof phone === "string" ? phone.trim() : "";
+    const normalizedName = typeof userName === "string" ? userName.trim() : "";
+
+    if (!["customer", "retail", "admin"].includes(userRole)) {
+        return res.status(400).json({ message: "Select a valid user role" });
+    }
+    if (!normalizedName || !normalizedEmail || !normalizedPhone || !password) {
+        return res.status(400).json({ message: "Name, email, phone, and password are required" });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+        return res.status(400).json({ message: "Enter a valid email address" });
+    }
+    if (typeof password !== "string" || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+    if (userRole === "retail" &&
+        (typeof businessRegistrationId !== "string" || !businessRegistrationId.trim() ||
+            typeof companyAddress !== "string" || !companyAddress.trim())) {
+        return res.status(400).json({
+            message: "Business registration ID and company address are required for retail partners"
+        });
+    }
+
+    try {
+        const [existingUsers] = await db.promise().query(
+            "SELECT id FROM users WHERE email = ?",
+            [normalizedEmail]
+        );
+        if (existingUsers.length > 0) {
+            return res.status(409).json({ message: "Email is already registered" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const [result] = await db.promise().query(
+            `INSERT INTO users
+                (fullName, email, phone, password, role, company_name,
+                 business_registration_id, company_address)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                normalizedName,
+                normalizedEmail,
+                normalizedPhone,
+                hashedPassword,
+                userRole,
+                userRole === "retail" ? normalizedName : null,
+                userRole === "retail" ? businessRegistrationId.trim() : null,
+                userRole === "retail" ? companyAddress.trim() : null
+            ]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "User created successfully",
+            user: {
+                id: result.insertId,
+                fullName: normalizedName,
+                email: normalizedEmail,
+                phone: normalizedPhone,
+                role: userRole
+            }
+        });
+    } catch (err) {
+        if (err.code === "ER_DUP_ENTRY") {
+            return res.status(409).json({ message: "Email is already registered" });
+        }
+        console.error("Error creating user:", err);
+        res.status(500).json({ message: "Failed to create user" });
+    }
 };
 
 // Delete user
@@ -147,34 +257,43 @@ exports.deleteListing = (req, res) => {
         res.json({ success: true, message: "Listing deleted" });
     });
 };
-// Assign listing to retail partner
-exports.assignListingToRetail = (req, res) => {
-    const listingId = req.params.id;
-    const { retail_id, notes } = req.body;
+// Assign listing to a retail partner for verification
+exports.assignListingToRetail = async (req, res) => {
+    const listingId = Number(req.params.id);
+    const retailId = Number(req.body.retail_id);
 
-    if (!retail_id) {
-        return res.status(400).json({ message: "Retail partner is required" });
+    if (!Number.isInteger(listingId) || listingId <= 0 ||
+        !Number.isInteger(retailId) || retailId <= 0) {
+        return res.status(400).json({ message: "A valid listing and retail partner are required" });
     }
 
-    // Verify retail partner exists
-    db.query("SELECT id FROM users WHERE id = ? AND role = 'retail'", [retail_id], (err, results) => {
-        if (err) return res.status(500).json({ message: "Database error" });
-        
-        if (results.length === 0) {
+    try {
+        const [retailPartners] = await db.promise().query(
+            "SELECT id FROM users WHERE id = ? AND role = 'retail'",
+            [retailId]
+        );
+        if (retailPartners.length === 0) {
             return res.status(400).json({ message: "Invalid retail partner" });
         }
 
-        // Update listing with assignment info (you can add assigned_to column if needed)
-        const sql = "UPDATE products SET verification_status = 'pending' WHERE id = ?";
-        db.query(sql, [listingId], (err) => {
-            if (err) return res.status(500).json({ message: "Error assigning listing" });
-            
-            res.json({ 
-                success: true, 
-                message: "Listing assigned to retail partner successfully" 
-            });
+        const [result] = await db.promise().query(
+            `UPDATE products
+             SET retail_partner_id = ?, verification_status = 'pending'
+             WHERE id = ?`,
+            [retailId, listingId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Listing not found" });
+        }
+
+        res.json({
+            success: true,
+            message: "Listing assigned to retail partner for verification"
         });
-    });
+    } catch (err) {
+        console.error("Error assigning listing to retail partner:", err);
+        res.status(500).json({ message: "Error assigning listing" });
+    }
 };
 // Get transactions
 exports.getTransactions = (req, res) => {
@@ -197,7 +316,9 @@ exports.getTransactions = (req, res) => {
 // Get complaints
 exports.getComplaints = (req, res) => {
     const sql = `
-        SELECT c.*, u.fullName as user_name, u.email as user_email
+        SELECT c.*, u.fullName as user_name, u.email as user_email,
+               (SELECT COUNT(*) FROM complaint_attachments ca
+                WHERE ca.complaint_id = c.id) AS attachment_count
         FROM complaints c
         JOIN users u ON c.user_id = u.id
         ORDER BY 
@@ -217,12 +338,28 @@ exports.getComplaints = (req, res) => {
 
 // Update complaint status
 exports.updateComplaint = (req, res) => {
-    const complaintId = req.params.id;
+    const complaintId = Number(req.params.id);
     const { status, admin_response } = req.body;
-    
-    const sql = "UPDATE complaints SET status = ?, admin_response = ?, resolved_at = NOW() WHERE id = ?";
-    db.query(sql, [status, admin_response, complaintId], (err) => {
-        if (err) return res.status(500).json({ message: "Error updating complaint" });
+
+    if (!Number.isInteger(complaintId) || complaintId < 1 ||
+        status !== "resolved" || typeof admin_response !== "string" ||
+        !admin_response.trim()) {
+        return res.status(400).json({ message: "A valid complaint ID and response are required" });
+    }
+
+    const sql = `
+        UPDATE complaints
+        SET status = ?, admin_response = ?, resolved_at = NOW()
+        WHERE id = ?
+    `;
+    db.query(sql, [status, admin_response.trim(), complaintId], (err, result) => {
+        if (err) {
+            console.error("Error updating complaint:", err);
+            return res.status(500).json({ message: "Error updating complaint" });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Complaint not found" });
+        }
         res.json({ success: true, message: "Complaint updated" });
     });
 };
@@ -236,23 +373,61 @@ exports.getSettings = (req, res) => {
 };
 
 // Update system settings
-exports.updateSettings = (req, res) => {
+exports.updateSettings = async (req, res) => {
     const { settings } = req.body;
-    
-    let completed = 0;
-    const total = settings.length;
-    
-    settings.forEach(setting => {
-        db.query("UPDATE system_settings SET setting_value = ? WHERE setting_key = ?", 
-            [setting.value, setting.key], 
-            (err) => {
-                completed++;
-                if (completed === total) {
-                    res.json({ success: true, message: "Settings updated" });
-                }
-            }
+
+    if (!Array.isArray(settings) || settings.length === 0 ||
+        settings.some((setting) =>
+            !setting || typeof setting.key !== "string" ||
+            !["string", "number", "boolean"].includes(typeof setting.value)
+        )) {
+        return res.status(400).json({ message: "A non-empty list of valid settings is required" });
+    }
+
+    const keys = settings.map((setting) => setting.key);
+    if (new Set(keys).size !== keys.length) {
+        return res.status(400).json({ message: "Duplicate setting keys are not allowed" });
+    }
+
+    let connection;
+    try {
+        connection = await db.promise().getConnection();
+        await connection.beginTransaction();
+
+        const [existingRows] = await connection.query(
+            "SELECT setting_key FROM system_settings WHERE setting_key IN (?)",
+            [keys]
         );
-    });
+        const existingKeys = new Set(existingRows.map((row) => row.setting_key));
+        if (keys.some((key) => !existingKeys.has(key))) {
+            await connection.rollback();
+            return res.status(400).json({ message: "One or more settings do not exist" });
+        }
+
+        for (const setting of settings) {
+            await connection.query(
+                "UPDATE system_settings SET setting_value = ? WHERE setting_key = ?",
+                [String(setting.value), setting.key]
+            );
+        }
+
+        await connection.commit();
+        res.json({ success: true, message: "Settings updated" });
+    } catch (err) {
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch (rollbackError) {
+                console.error("Error rolling back settings update:", rollbackError);
+            }
+        }
+        console.error("Error updating settings:", err);
+        res.status(500).json({ message: "Error updating settings" });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
 };
 
 // Get reports data

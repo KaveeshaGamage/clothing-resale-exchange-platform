@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import WelcomePage from "./pages/WelcomePage";
 import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
@@ -9,6 +10,12 @@ import CustomerShopPage from "./pages/customer/ShopPage";
 import CustomerSellItem from "./pages/customer/SellItem"; 
 import CustomerOrders from "./pages/customer/MyOrders";
 import CustomerListings from "./pages/customer/MyListings";
+import CartPage from "./pages/customer/Cart";
+import OrderDetails from "./pages/customer/OrderDetails";
+import Wishlist from "./pages/customer/Wishlist";
+import Notifications from "./pages/customer/Notifications";
+import Messages from "./pages/customer/Messages";
+import Profile from "./pages/customer/Profile";
 
 import AdminUsers from "./pages/admin/ManageUsers";
 import AdminListings from "./pages/admin/ManageListings";
@@ -28,15 +35,22 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login */}
-        <Route path="/" element={<Login />} />
+        {/* Public pages */}
+        <Route path="/" element={<WelcomePage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/customer/dashboard" element={<CustomerDashboard />} />
         <Route path="/customer/shop" element={<CustomerShopPage />} />
         <Route path="/customer/orders" element={<CustomerOrders />} />
         <Route path="/customer/sell-item" element={<CustomerSellItem />} />
         <Route path="/customer/my-listings" element={<CustomerListings />} />
-
+        <Route path="/customer/cart" element={<CartPage />} />  
+        <Route path="/customer/dashboard/cart" element={<CartPage />} />
+        <Route path="/customer/order-details/:id" element={<OrderDetails />} />
+        <Route path="/customer/wishlist" element={<Wishlist />} />
+        <Route path="/customer/notifications" element={<Notifications />} />
+        <Route path="/customer/messages" element={<Messages />} />  
+        <Route path="/customer/profile" element={<Profile />} />
 
         <Route path="/retail/dashboard" element={<RetailDashboard />} />
         <Route path="/retail/approved-listings" element={<ApprovedListings />} />
@@ -44,7 +58,7 @@ function App() {
         <Route path="/retail/rejected-listings" element={<RejectedListings />} />
         <Route path="/retail/delivery-management" element={<RetailDelivery />} />
         <Route path="/retail/reports" element={<RetailReports />} />
-        <Route path="/retail/update-delivery" element={<UpdateDelivery />} />
+        <Route path="/retail/update-delivery/:id" element={<UpdateDelivery />} />
 
 
         <Route path="/admin/dashboard" element={<AdminDashboard />} />

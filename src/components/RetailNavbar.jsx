@@ -65,14 +65,6 @@ Delivery Management
 
 
 <li>
-<Link to="/retail/update-delivery">
-Update Delivery Status
-</Link>
-</li>
-
-
-
-<li>
 <Link to="/retail/reports">
 Reports
 </Link>

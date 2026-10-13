@@ -1,6 +1,9 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CustomerNavbar from "../../components/CustomerNavbar";
+import CustomerNavbar from "../../components/CustomerNavbar.jsx";
+import ProductImage from "../../components/ProductImage.jsx";
 import "../../styles/MyListings.css";
 
 function MyListings() {
@@ -31,7 +34,7 @@ function MyListings() {
 
       console.log("Fetching listings with token:", token.substring(0, 20) + "..."); // Debug
 
-      const response = await fetch("http://localhost:5000/api/products/my-listings", {
+      const response = await fetch(`${API_BASE_URL}/api/products/my-listings`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -68,7 +71,7 @@ function MyListings() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/products/${selectedListing.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/products/${selectedListing.id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`
@@ -273,8 +276,8 @@ function MyListings() {
             {filteredListings.map(listing => (
               <div key={listing.id} className="listing-card">
                 <div className="listing-image">
-                  <img 
-                    src={listing.image_url || "https://via.placeholder.com/300x200?text=No+Image"} 
+                  <ProductImage
+                    src={listing.image_url}
                     alt={listing.name} 
                   />
                   {getStatusBadge(listing.status, listing.verification_status)}

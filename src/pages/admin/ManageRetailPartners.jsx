@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/ManageRetailPartners.css";
 import AdminNavbar from "../../components/AdminNavbar";
@@ -12,7 +14,7 @@ function ManageRetailPartners() {
   const fetchPartners = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/admin/users?role=retail", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users?role=retail`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -53,7 +55,7 @@ function ManageRetailPartners() {
                 <td>{partner.email}</td>
                 <td>{partner.phone}</td>
                 <td>{new Date(partner.created_at).toLocaleDateString()}</td>
-                <td>-</td>
+                <td>{Number(partner.verifiedListings) || 0}</td>
                 <td><span className="status-active">Active</span></td>
               </tr>
             ))}

@@ -58,8 +58,11 @@ function CustomerNavbar() {
            My Listings
           </Link>
         </li>
-
-
+<li>
+<Link to="/customer/cart">
+           My Cart
+          </Link>
+        </li>
         {/* Dropdown */}
         <li className="dropdown">
 

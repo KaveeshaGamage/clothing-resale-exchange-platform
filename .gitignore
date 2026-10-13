@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Environment files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Project documentation
+md_files/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

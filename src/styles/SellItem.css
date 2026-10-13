@@ -1,6 +1,6 @@
 .sell-item-page {
   padding: 20px;
-  background: #f5f5f5;
+  background: var(--palette-oatmeal);
   min-height: 100vh;
 }
 
@@ -10,12 +10,12 @@
 
 .sell-header h1 {
   font-size: 2rem;
-  color: #333;
+  color: var(--palette-ink);
   margin-bottom: 10px;
 }
 
 .sell-header p {
-  color: #666;
+  color: var(--palette-muted);
   font-size: 1.1rem;
 }
 
@@ -26,8 +26,8 @@
 
 /* Info Card */
 .info-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--palette-sage-dark) 0%, var(--palette-sage-dark) 100%);
+  color: var(--palette-oatmeal-light);
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -74,15 +74,15 @@
 }
 
 .success-message {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: var(--palette-oatmeal-dark);
+  color: var(--palette-sage-dark);
+  border: 1px solid var(--palette-sage-soft);
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: var(--palette-sage-soft);
+  color: var(--palette-terracotta-dark);
+  border: 1px solid var(--palette-terracotta);
 }
 
 .success-icon,
@@ -93,16 +93,16 @@
 
 /* Form Styles */
 .sell-form {
-  background: white;
+  background: var(--palette-oatmeal-light);
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(var(--palette-ink-rgb), 0.1);
 }
 
 .form-section {
   margin-bottom: 30px;
   padding-bottom: 30px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--palette-oatmeal-dark);
 }
 
 .form-section:last-of-type {
@@ -113,12 +113,12 @@
 
 .form-section h2 {
   font-size: 1.3rem;
-  color: #333;
+  color: var(--palette-ink);
   margin-bottom: 20px;
 }
 
 .section-description {
-  color: #666;
+  color: var(--palette-muted);
   font-size: 0.95rem;
   margin-bottom: 20px;
 }
@@ -142,7 +142,7 @@
 .form-group label {
   font-weight: 600;
   margin-bottom: 8px;
-  color: #333;
+  color: var(--palette-ink);
   font-size: 0.95rem;
 }
 
@@ -150,7 +150,7 @@
 .form-group select,
 .form-group textarea {
   padding: 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--palette-oatmeal-dark);
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s;
@@ -161,7 +161,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--palette-sage);
 }
 
 .form-group textarea {
@@ -170,14 +170,14 @@
 }
 
 .help-text {
-  color: #666;
+  color: var(--palette-muted);
   font-size: 0.85rem;
   margin-top: 5px;
 }
 
 /* Price Preview */
 .price-preview {
-  background: #f8f9fa;
+  background: var(--palette-oatmeal-light);
   padding: 20px;
   border-radius: 8px;
   margin-top: 10px;
@@ -197,23 +197,23 @@
 }
 
 .price-item .original {
-  color: #999;
+  color: var(--palette-muted);
   text-decoration: line-through;
 }
 
 .price-item .selling {
-  color: #4CAF50;
+  color: var(--palette-sage);
   font-weight: bold;
   font-size: 1.1rem;
 }
 
 .price-item.discount {
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--palette-oatmeal-dark);
   padding-top: 10px;
 }
 
 .price-item .savings {
-  color: #ff4444;
+  color: var(--palette-terracotta);
   font-weight: bold;
 }
 
@@ -223,38 +223,53 @@
   text-align: center;
 }
 
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 180px));
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .image-preview {
   position: relative;
-  display: inline-block;
-  margin-bottom: 15px;
+  overflow: hidden;
+  border: 1px solid var(--palette-oatmeal-dark);
+  border-radius: 10px;
+  background: var(--palette-oatmeal-light);
 }
 
 .image-preview img {
-  max-width: 300px;
-  max-height: 300px;
-  border-radius: 8px;
+  display: block;
+  width: 100%;
+  height: 170px;
   object-fit: cover;
 }
 
-.remove-image-btn {
+.image-preview-number {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #ff4444;
-  color: white;
-  border: none;
+  top: 8px;
+  left: 8px;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
+  color: var(--palette-oatmeal-light);
+  background: var(--palette-sage-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.selected-image-count {
+  margin: 8px 0 15px;
+  color: var(--palette-sage-dark);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .upload-placeholder {
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--palette-muted);
   padding: 40px;
   border-radius: 8px;
   margin-bottom: 15px;
@@ -263,7 +278,7 @@
 }
 
 .upload-placeholder:hover {
-  border-color: #4CAF50;
+  border-color: var(--palette-sage);
 }
 
 .upload-icon {
@@ -273,13 +288,13 @@
 }
 
 .upload-placeholder p {
-  color: #666;
+  color: var(--palette-muted);
   margin: 5px 0;
 }
 
 .upload-hint {
   font-size: 0.9rem;
-  color: #999;
+  color: var(--palette-muted);
 }
 
 .file-input {
@@ -289,15 +304,15 @@
 .upload-btn {
   display: inline-block;
   padding: 10px 20px;
-  background: #2196F3;
-  color: white;
+  background: var(--palette-sage-dark);
+  color: var(--palette-oatmeal-light);
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .upload-btn:hover {
-  background: #1976D2;
+  background: var(--palette-sage-dark);
 }
 
 /* Form Actions */
@@ -307,7 +322,7 @@
   justify-content: flex-end;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--palette-oatmeal-dark);
 }
 
 .cancel-btn,
@@ -322,35 +337,35 @@
 }
 
 .cancel-btn {
-  background: #f0f0f0;
-  color: #333;
+  background: var(--palette-oatmeal-dark);
+  color: var(--palette-ink);
 }
 
 .cancel-btn:hover {
-  background: #e0e0e0;
+  background: var(--palette-oatmeal-dark);
 }
 
 .submit-btn {
-  background: #4CAF50;
-  color: white;
+  background: linear-gradient(120deg, var(--palette-terracotta), var(--palette-terracotta-dark));
+  color: var(--palette-oatmeal-light);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #45a049;
+  background: linear-gradient(120deg, var(--palette-terracotta-dark), var(--palette-terracotta));
 }
 
 .submit-btn:disabled {
-  background: #ccc;
+  background: var(--palette-muted);
   cursor: not-allowed;
 }
 
 .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--palette-oatmeal-light);
   border-top: 2px solid transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;

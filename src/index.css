@@ -1,0 +1,103 @@
+:root {
+  color-scheme: light;
+  --palette-oatmeal: #f5ebdd;
+  --palette-oatmeal-light: #fbf7f0;
+  --palette-oatmeal-dark: #e7d8c3;
+  --palette-sage: #2a6b5c;
+  --palette-sage-dark: #1f544a;
+  --palette-sage-soft: #dce9e2;
+  --palette-sage-muted: #748b80;
+  --palette-terracotta: #b85c38;
+  --palette-terracotta-dark: #96472d;
+  --palette-terracotta-soft: #f4e1d7;
+  --palette-ink: #1f2a26;
+  --palette-muted: #69736d;
+  --palette-white: #fffcf7;
+  --palette-oatmeal-rgb: 245, 235, 221;
+  --palette-oatmeal-light-rgb: 251, 247, 240;
+  --palette-oatmeal-dark-rgb: 231, 216, 195;
+  --palette-sage-rgb: 42, 107, 92;
+  --palette-sage-dark-rgb: 31, 84, 74;
+  --palette-sage-soft-rgb: 220, 233, 226;
+  --palette-sage-muted-rgb: 116, 139, 128;
+  --palette-terracotta-rgb: 184, 92, 56;
+  --palette-terracotta-dark-rgb: 150, 71, 45;
+  --palette-terracotta-soft-rgb: 244, 225, 215;
+  --palette-ink-rgb: 31, 42, 38;
+  --palette-muted-rgb: 105, 115, 109;
+  --palette-white-rgb: 255, 252, 247;
+  color: var(--palette-ink);
+  background: var(--palette-oatmeal);
+  font-family: Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--palette-ink);
+  background-color: var(--palette-oatmeal);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+a {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(var(--palette-terracotta-rgb), 0.62);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: var(--palette-white);
+  background: var(--palette-sage);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

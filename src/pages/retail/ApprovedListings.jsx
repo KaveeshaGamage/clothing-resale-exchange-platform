@@ -1,6 +1,9 @@
+import { API_BASE_URL } from "../../api.js";
+
 import { useState, useEffect } from "react";
 import "../../styles/ApprovedListings.css";
-import RetailNavbar from "../../components/RetailNavbar";
+import RetailNavbar from "../../components/RetailNavbar.jsx";
+import ProductImage from "../../components/ProductImage.jsx";
 function ApprovedListings() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +17,7 @@ function ApprovedListings() {
   const fetchApprovedListings = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/retail/approved-listings", {
+      const response = await fetch(`${API_BASE_URL}/api/retail/approved-listings`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -152,8 +155,8 @@ function ApprovedListings() {
         <div className="listings-grid">
           {filteredListings.map(listing => (
             <div key={listing.id} className="listing-card">
-              <img 
-                src={listing.image_url || "https://via.placeholder.com/300x200?text=No+Image"} 
+              <ProductImage
+                src={listing.image_url}
                 alt={listing.name} 
               />
               <div className="listing-info">
