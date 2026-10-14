@@ -1,6 +1,8 @@
 const mysql = require("mysql2");
 require("dotenv").config();
 
+console.log("DB target:", process.env.DB_HOST, process.env.DB_PORT, process.env.DB_NAME, "ssl:", process.env.DB_SSL);
+
 const useSsl = process.env.DB_SSL === "true";
 
 const sslOptions = {
