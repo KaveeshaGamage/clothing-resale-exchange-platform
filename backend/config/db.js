@@ -1,15 +1,25 @@
 const mysql = require("mysql2");
 require("dotenv").config();
 
+const useSsl = process.env.DB_SSL === "true";
+
+const sslOptions = {
+  minVersion: "TLSv1.2",
+  rejectUnauthorized: process.env.DB_SSL_STRICT !== "false",
+  ...(process.env.DB_CA && { ca: process.env.DB_CA.replace(/\\n/g, "\n") })
+};
+
 const db = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || "rewear",
-ssl: { minVersion: "TLSv1.2", rejectUnauthorized: true },
+
+  ...(useSsl && { ssl: sslOptions }),
+
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 5,
   queueLimit: 0
 });
 
