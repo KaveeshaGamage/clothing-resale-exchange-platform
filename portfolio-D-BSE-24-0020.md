@@ -20,9 +20,7 @@ The contributor role currently includes backend retail verification, listing app
 | Admin Management, Testing & Finalization | Epic: admin management, testing and finalization | [#9 Admin Management, Testing & Finalization](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/9) | Closed ~3 days before export (4/4 sub-issues) |
 | Admin Management, Testing & Finalization | Admin-side implementation | [#25 in admin side](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/25) | Closed ~1 week before export |
 | Admin Management, Testing & Finalization | User management | [#28 manage users](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/28) | Closed ~1 week before export |
-| Admin Management, Testing & Finalization | Retail partner management | [#29 manage retail partners](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/29) | Closed ~3 days before export |
-| Admin Management, Testing & Finalization | Reports | [#30 reports](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/30) | Closed ~3 days before export |
-| Admin Management, Testing & Finalization | Testing with Jest | [#31 testing with jest](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/31) | Closed ~3 days before export |
+
  
 > Issue assignments above were matched to roles from the project issue list; please confirm against the GitHub assignees before submission.
  
