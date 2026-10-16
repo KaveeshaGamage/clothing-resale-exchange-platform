@@ -19,7 +19,9 @@ The contributor role currently includes backend work related to user registratio
 | Foundation & User Authentication | Backend and database tables for login and registration | [#16 backend and database tables of login registration](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/16) | Closed Aug 27 |
 | Clothing Listing & Product Browsing | Listing creation | [#17 create listings](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/17) | Closed ~1 week before export |
 | Buying, Selling & Order | Buying, selling and order management epic | [#7 Buying, Selling & Order Management](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/7) | Closed (3/3 sub-issues) |
- 
+ | Admin Management, Testing & Finalization | Retail partner management | [#29 manage retail partners](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/29) | Closed ~3 days before export |
+| Admin Management, Testing & Finalization | Reports | [#30 reports](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/30) | Closed ~3 days before export |
+| Admin Management, Testing & Finalization | Testing with Jest | [#31 testing with jest](https://github.com/KaveeshaGamage/clothing-resale-exchange-platform/issues/31) | Closed ~3 days before export |
 > Issue assignments above were matched to roles from the project issue list; please confirm against the GitHub assignees before submission.
  
 ## Learning and reflection
